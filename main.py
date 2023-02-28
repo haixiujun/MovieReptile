@@ -1,4 +1,5 @@
 import random
+import time
 from urllib import request
 import ua_info
 import re
@@ -71,9 +72,13 @@ def access_Page(pageNum, url):
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
     for i in range(1,505):
-        #print(i)
-        access_Page(i, url_all)
-
+        try:
+            #print(i)
+            access_Page(i, url_all)
+            print("Page"+str(i)+"is Success storage")
+            time.sleep(10)
+        except:
+            print("Exception")
     # createHrefTable() # 第一次使用创建数据库
 
     db.close()
