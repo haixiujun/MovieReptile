@@ -7,6 +7,7 @@ import pymysql
 url_4k = 'https://wsygq.com/show/movie-4K--------'
 url_1080p = 'https://wsygq.com/show/movie-1080P--------'
 url_720p = 'https://wsygq.com/show/movie-720P--------'
+url_all='https://wsygq.com/show/movie---------'
 end_str = '---.html'
 base_url = "https://wsygq.com"
 db = pymysql.connect(
@@ -19,9 +20,9 @@ db = pymysql.connect(
 )
 
 
-def createHrefTable():
+def create_Href_Table():
     cursor = db.cursor()
-    sql = "CREATE TABLE Href(id int PRIMARY KEY,name varchar(50),href varchar(50),score decimal);"
+    sql = "CREATE TABLE Href(id int PRIMARY KEY,name varchar(50),href varchar(50),score float);"
     try:
         cursor.execute(sql)
         sql1 = "alter table Href change id id int auto_increment;"
@@ -36,7 +37,8 @@ def createHrefTable():
 
 def add_Href(title, score, url):
     cursor = db.cursor()
-    sql="INSERT INTO Href (name,score,href) VALUES (\'"+title+"\',"+score+",\'"+url+"\');"
+    sql = "INSERT INTO Href (name,score,href) VALUES (\"" + title + "\"," + score + ",\"" + url + "\");"
+    print(sql)
     try:
         cursor.execute(sql)
         db.commit()
@@ -61,13 +63,17 @@ def access_Page(pageNum, url):
         score = re.findall("<span class=\"score\">(.*)</span><span class", temp)
         href = re.findall("<a href=\"(.*)\" title=", temp)
         title = re.findall("\" title=\"(.*)\" style=", temp)
-        print("Score:" + str(score) + " title:" + str(title) + " href=" + str(href))
+        add_Href(str(title[0]), str(score[0]), str(href[0]))
+        # print("Score:" + str(score) + " title:" + str(title) + " href=" + str(href))
         i += 1
 
 
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
-    access_Page(1, url_4k)
+    for i in range(1,505):
+        #print(i)
+        access_Page(i, url_all)
+
     # createHrefTable() # 第一次使用创建数据库
 
     db.close()
