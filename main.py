@@ -21,11 +21,31 @@ db = pymysql.connect(
 )
 
 
-def get_Href_List(id):
+
+def handle_Href_Link(data):
+    url_Movie = base_url + data[2]
+    headers = {'User-Agent': ua_info.ua_list[random.randint(0, 9)]}
+    req = request.Request(url=url_Movie, headers=headers)
+    res = request.urlopen(req)
+    html = res.read().decode('utf-8')
+    try:
+        link_All = re.findall(
+            "<div class=\"downlist\" id=\"downlist\">(.*)</div></div><div class=\"layout-box clearfix\">",
+            html)
+        link_Split = re.split("</ul>", link_All[0])
+        for block in link_Split:
+            if block != '':
+                li_List = re.split("</li><li>", re.findall("<li>(.*)</li>", block)[0])
+                for a in li_List:
+                    print(a)
+    except Exception:
+        print("Find Link Failed")
+
+
+def handle_Href_List(id):
     cursor = db.cursor()
     id = id * 100;
-    sql = 'SELECT * FROM Href WHERE id <=' + str(id) + ";";
-    print(sql)
+    sql = 'SELECT * FROM Href WHERE id <=' + str(id) + ";"
     try:
         cursor.execute(sql)
         retDataList = cursor.fetchall()
@@ -34,6 +54,22 @@ def get_Href_List(id):
         print("Select Data From Href Table Success,Index Max is: " + str(id))
     except Exception:
         print("Select Data From Href Failed")
+        db.rollback()
+    finally:
+        cursor.close()
+
+
+def create_Link_Table():
+    cursor = db.cursor()
+    sql = "CREATE TABLE MovieLink(id int PRIMARY KEY,movie_id int,link varchar(50));"
+    try:
+        cursor.execute(sql)
+        sql1 = "alter table MovieLink change id id int auto_increment;"
+        cursor.execute(sql1)
+        db.commit()
+        print("Create MovieLink Table Success")
+    except Exception:
+        print("Create MovieLink Table Failed")
         db.rollback()
     finally:
         cursor.close()
@@ -90,4 +126,10 @@ def access_Page(pageNum, url):
 
 
 if __name__ == '__main__':
-    get_Href_List(1)
+    # create_Href_Table()
+    # create_Link_Table()
+    # handle_Href_List(1)
+    # handle_Href_Link((5, '阿甘正传', '/hd/3.html', 9.5))
+
+    print("Reptile Success")
+
