@@ -8,7 +8,7 @@ import pymysql
 url_4k = 'https://wsygq.com/show/movie-4K--------'
 url_1080p = 'https://wsygq.com/show/movie-1080P--------'
 url_720p = 'https://wsygq.com/show/movie-720P--------'
-url_all='https://wsygq.com/show/movie---------'
+url_all = 'https://wsygq.com/show/movie---------'
 end_str = '---.html'
 base_url = "https://wsygq.com"
 db = pymysql.connect(
@@ -19,6 +19,24 @@ db = pymysql.connect(
     db='IBLUE',
     charset='utf8'
 )
+
+
+def get_Href_List(id):
+    cursor = db.cursor()
+    id = id * 100;
+    sql = 'SELECT * FROM Href WHERE id <=' + str(id) + ";";
+    print(sql)
+    try:
+        cursor.execute(sql)
+        retDataList = cursor.fetchall()
+        for temp in retDataList:
+            print(temp)
+        print("Select Data From Href Table Success,Index Max is: " + str(id))
+    except Exception:
+        print("Select Data From Href Failed")
+        db.rollback()
+    finally:
+        cursor.close()
 
 
 def create_Href_Table():
@@ -32,6 +50,7 @@ def create_Href_Table():
         print("Create Href Table Success")
     except Exception:
         print("Create Href Table Failed")
+        db.rollback()
     finally:
         cursor.close()
 
@@ -46,6 +65,7 @@ def add_Href(title, score, url):
         print("Insert Href Data Success")
     except:
         print("Insert Href Data Failed")
+        db.rollback()
     finally:
         cursor.close()
 
@@ -69,17 +89,5 @@ def access_Page(pageNum, url):
         i += 1
 
 
-# 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
-    for i in range(1,505):
-        try:
-            #print(i)
-            access_Page(i, url_all)
-            print("Page"+str(i)+"is Success storage")
-            time.sleep(10)
-        except:
-            print("Exception")
-    # createHrefTable() # 第一次使用创建数据库
-
-    db.close()
-# 访问 https://www.jetbrains.com/help/pycharm/ 获取 PyCharm 帮助
+    get_Href_List(1)
