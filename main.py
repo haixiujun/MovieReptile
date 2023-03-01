@@ -4,7 +4,7 @@ from urllib import request
 import ua_info
 import re
 import pymysql
-
+import pytesseract
 url_4k = 'https://wsygq.com/show/movie-4K--------'
 url_1080p = 'https://wsygq.com/show/movie-1080P--------'
 url_720p = 'https://wsygq.com/show/movie-720P--------'
@@ -19,7 +19,6 @@ db = pymysql.connect(
     db='IBLUE',
     charset='utf8'
 )
-
 
 
 def handle_Href_Link(data):
@@ -91,6 +90,21 @@ def create_Href_Table():
         cursor.close()
 
 
+def add_Movie_Link(movieID, url):
+    cursor = db.cursor()
+    sql = "INSERT INTO Movielink (movie_id,link) VALUES (\"" + movieID + "\"," + url + "\");"
+    print(sql)
+    try:
+        cursor.execute(sql)
+        db.commit()
+        print("Insert MovieLink Data Success")
+    except:
+        print("Insert MovieLink Data Failed")
+        db.rollback()
+    finally:
+        cursor.close()
+
+
 def add_Href(title, score, url):
     cursor = db.cursor()
     sql = "INSERT INTO Href (name,score,href) VALUES (\"" + title + "\"," + score + ",\"" + url + "\");"
@@ -104,6 +118,24 @@ def add_Href(title, score, url):
         db.rollback()
     finally:
         cursor.close()
+
+
+def movie_Page_Login():
+
+    headers = {'User-Agent': ua_info.ua_list[random.randint(0, 9)]}
+    post_data = {
+        "user_name": 'xiuhai',
+        "pwd": 'qq94523105',
+        "verify": "",
+    }
+
+    #urlAccess = url + str(pageNum) + end_str
+    #req = request.Request(url=urlAccess, headers=headers)
+    #res = request.urlopen(req)
+    #html = res.read().decode('utf-8')
+
+def access_Movie_Page(url):
+    print("hello")
 
 
 def access_Page(pageNum, url):
@@ -130,6 +162,10 @@ if __name__ == '__main__':
     # create_Link_Table()
     # handle_Href_List(1)
     # handle_Href_Link((5, '阿甘正传', '/hd/3.html', 9.5))
-
+    url='https://wsygq.com/index.php/user/login.html'
+    headers = {'User-Agent': ua_info.ua_list[random.randint(0, 9)]}
+    req = request.Request(url=url, headers=headers)
+    res = request.urlopen(req)
+    html = res.read().decode('utf-8')
+    print(html)
     print("Reptile Success")
-
